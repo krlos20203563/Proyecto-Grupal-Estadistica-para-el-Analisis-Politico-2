@@ -52,7 +52,7 @@ Justificación: La variable independiente expresa el grado de efectividad de los
 
 Por último, en estaa justificación del trabajo tambi se hará  mención  de la dificult con la que contamos al subir una base de datos muy pesada.  En nuestro caso: v_dem.  Por ello, a través del readme le enviaremos el link de la base de datos subida a google drive. No obstante, posteriormente también deseamos subir la base de datos y, para ello, solicitaremos su ayuda, Wendy. Muchas gracias
 
-
+https://drive.google.com/file/d/1lrT24D3nPjZpxzORBTJa_AeqgwIzkbG_/view?usp=sharing
 
 
 
