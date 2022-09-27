@@ -24,7 +24,7 @@ Base de datos: CIA (LifeExpectancy)
 
 Camas hospitalarias por cada 1000 habitantes: La variable independiente brinda la medida del gasto en salud brindando por el estado para prestar el servicio de salud para la población especialmente para los que se encuentran afectados.
 Base de datos: Banco Mundial
-https://datos.bancomundial.org/indicator/SH.MED.BEDS.ZS
+https://datos.bancomundial.org/indicator/SH.MED.BEDS.ZS (ahorita está fallando la descarga de la base de datos del Banco Mundial, para la segunda entrega tendremos la base de datos)
 
 Inflación: La variable independiente indica el grado de variación del aumento sostenido de los precios de los bienes y servicios que viene circulando en una sociedad, reflejándose en la depreciación de la moneda para la adquisición de productos.
 Base de datos: CIA (Inflation)
