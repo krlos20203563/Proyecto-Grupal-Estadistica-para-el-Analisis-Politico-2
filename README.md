@@ -8,29 +8,28 @@ Christian Silvera (20192528)
 
 Variable dependiente: número de protestas por año en cada país
 
-Gasto en educación: La variable independiente indica la medida del gasto invertido para la realización de políticas en favor del desarrollo de la educación en la ciudadanía de una nación. Base de datos: CIA (GastEdu)
+Gasto del PBI destinado a educación: Es el gasto corriente y de capital destinado en instituciones educativas (directo e indirecto) llevado a cabo por el gobierno central y los gobiernos a escala subnacional, expresado como porcentaje del PBI en valores nominales. Consideramos que dicha variable es significativa al momento de explicar el número de protestas que se dan por año ya que un mayor o menor gasto del PBI destinado al sector educación puede influir, en mayor o menor medida, en la obtención de mecanismos de ascenso social y acceso a una mejor calidad de vida, lo cual puede incentivar la movilización ciudadana si sus demandas dentro de dicho aspecto no se ven satisfechas. 
 
-Desempleo: La variable independiente indica el porcentaje de desempleo existente en una nación respecto a la población activa.
-Base de datos: CIA (Desempleo)
+Desempleo: Es una situación concreta que se da cuando la cantidad de personas económicamente activas que buscan trabajo (demanda de empleo) excede el número de empleos disponibles (oferta de empleo) dentro del mercado laboral formal. Lo entendemos como una variable explicativa al número de protestas que se efectúan por año ya que coloca en una situación de vulnerabilidad social a un segmento de la población, lo cual encuentra diversos mecanismos de adaptación y lucha, entre ellas, la movilización y las protestas. 
 
-GINI: La variable independiente indica la medida de desigualdad de los ingresos percibidos por las personas. 
-Base de datos: CIA (GINI)
+GINI: Es un indicador que busca observar los cambios que se dan en la distribución de ingresos dentro de un Estado. Expresa el porcentaje del total de ingresos en manos de una cierta proporción de la población ordenada del más pobre al más rico. Puede ser entendida como una variable predictora ya que la movilización ciudadana puede ser incentivada a partir del grado de desigualdad que existe al interior de los países en lo que respecta a la distribución de los ingresos, lo cual se relaciona directamente con la calidad de vida que recibe la población en comparación con el decil más rico con el decil más pobre.  
 
-PBI per cápita: La variable independiente indica valor monetario de los bienes y servicios finales producidos por una nación en un periodo determinado. 
-Base de datos: CIA (PBIpercapita)
+PBI per cápita: Es la relación entre el valor total de todos los bienes y servicios finales generados durante un año por la economía de una nación o Estado y el número de sus habitantes en ese año. Los países con mayor PIBpc generalmente tienen una base material más amplia para impulsar el desarrollo educativo de su población. Lo consideramos como una variable explicativa ya que puede expresar el potencial económico que se da dentro de un país. Sirve como una medida indirecta para estimar la calidad de vida de la población, por lo que un menor PIBpc puede servir como incentivo del número de protestas que se dan por año, especialmente en aquellos países que poseen índices menos favorables en lo que respecta a la calidad de vida de su sociedad. 
 
-Esperanza de vida al nacer: La variable independiente brinda el parámetro para medir la expectativa de vida de acuerdo a los servicios brindados por el estado para la población y cuanto esta puede asegurar los años de vida de las personas en un cierto periodo.
-Base de datos: CIA (LifeExpectancy)
+Esperanza de vida al nacer: Es un indicador que relaciona el número de años que cabe esperar viva un recién nacido sujeto a las tasas de mortalidad por edades en un período determinado.  Expresa una medida en la cual se puede estimar la calidad de vida de un Estado en torno a la cantidad de años en promedio que pueda vivir una persona. Esto último puede ser vista como un factor que explica la movilización y el número de protestas debido a que es una expresión de la situación social que se desarrolla dentro de un país, por lo que lo podemos entender como una variable explicativa a nuestro caso de estudio. 
 
-Camas hospitalarias por cada 1000 habitantes: La variable independiente brinda la medida del gasto en salud brindando por el estado para prestar el servicio de salud para la población especialmente para los que se encuentran afectados.
-Base de datos: Banco Mundial
-https://datos.bancomundial.org/indicator/SH.MED.BEDS.ZS (ahorita está fallando la descarga de la base de datos del Banco Mundial, para la segunda entrega tendremos la base de datos)
+Camas hospitalarias por cada 1000 habitantes:  Expresa el número de camas que se encuentran disponibles dentro del sector salud de cada país por cada 1000 habitantes. Sirve como una medida indirecta para estimar el grado de satisfacción de la oferta con relación a la demanda de camas hospitalarias. Tomando en cuenta este último punto, podemos analizar a dicha variable como una de carácter explicativa ya que refleja la calidad del servicio de salud dentro de un país, lo cual puede relacionarse 
+con el número de protestas que se efectúan a nivel anual dentro de cada Estado.
 
-Inflación: La variable independiente indica el grado de variación del aumento sostenido de los precios de los bienes y servicios que viene circulando en una sociedad, reflejándose en la depreciación de la moneda para la adquisición de productos.
-Base de datos: CIA (Inflation)
+Inflación por consumo: La inflación es un aumento generalizado y continuo en el nivel general de precios de los bienes y servicios de la economía, lo cual origina una serie de efectos negativos sobre determinados agentes económicos (trabajadores, ahorristas, rentistas, etc. Esto genera un incentivo para una dinámica de mayor movilización debido a la amenaza que implica en diversos sectores sociales en lo que respecta al acceso a recursos de primera necesidad y a su calidad de vida. 
 
-Institucionalización democrática: La variable independiente expresa el grado de efectividad de los procedimientos institucionales a través de los cuales los ciudadanos pueden expresar preferencias efectivas sobre políticas y cargos de elección popular, las cuáles no pueden ser restringidas por el poder político, el cual se encargará de garantizar las libertades civiles de todos los ciudadanos en el ejercicio de sus derechos políticos en un sistema de pesos y contrapesos que garanticen un mayor grado de accountability dentro del sistema político. 
-Base de datos: Polity V 2020 (“p5v2018”)
+Institucionalización democrática: Es un indicador del Polity V que expresa el grado de efectividad de los procedimientos instituciones a través de los cuáles los ciudadanos pueden expresar preferencias sobre políticas y cargos de elección popular, los cuáles no pueden ser restringidos por el poder político. Un mayor o menor grado de una institucionalización democrática puede incentivar un mayor número de protestas que se realizan dentro de un país anualmente ya que puede expresar un grado de insatisfacción ciudadana en lo que respecta a la garantía de sus libertades civiles y políticas, así como la calidad de su sistema de pesos y contrapesos que garanticen un mayor grado de ajuste de cuenta entre el sistema político y la ciudadanía. 
+
+
+Durabilidad del régimen política: 
+
+
+Población:
 
 Durabilidad del régimen: La variable independiente expresa el grado de estabilidad que tiene el régimen político por medio de la cantidad de años en la cual este se ha mantenido en el poder.
 Base de datos: Polity V 2020 (“p5v2018”)
