@@ -6,7 +6,7 @@ Kevin Villarreal Urquizo (20171967)
 Carlos Crespín (20203563)
 Christian Silvera (20192528)
 
-Variable dependiente: número de protestas por año en cada país
+Variable dependiente: Número de protestas por año en cada país. Esta investigación tiene por objetivo explicar las variables que influyen, a nivel estadístico, en el número de protestas sociales que ocurren en cada país. Esto se debe a la relativa escasez de trabajos que aborden dicha problemática.
 
 Gasto del PBI destinado a educación: Es el gasto corriente y de capital destinado en instituciones educativas (directo e indirecto) llevado a cabo por el gobierno central y los gobiernos a escala subnacional, expresado como porcentaje del PBI en valores nominales. Consideramos que dicha variable es significativa al momento de explicar el número de protestas que se dan por año ya que un mayor o menor gasto del PBI destinado al sector educación puede influir, en mayor o menor medida, en la obtención de mecanismos de ascenso social y acceso a una mejor calidad de vida, lo cual puede incentivar la movilización ciudadana si sus demandas dentro de dicho aspecto no se ven satisfechas. 
 Base de datos: CIA (GastEdu.csv)
