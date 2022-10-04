@@ -26,13 +26,6 @@ Inflación por consumo: La inflación es un aumento generalizado y continuo en e
 Institucionalización democrática: Es un indicador del Polity V que expresa el grado de efectividad de los procedimientos instituciones a través de los cuáles los ciudadanos pueden expresar preferencias sobre políticas y cargos de elección popular, los cuáles no pueden ser restringidos por el poder político. Un mayor o menor grado de una institucionalización democrática puede incentivar un mayor número de protestas que se realizan dentro de un país anualmente ya que puede expresar un grado de insatisfacción ciudadana en lo que respecta a la garantía de sus libertades civiles y políticas, así como la calidad de su sistema de pesos y contrapesos que garanticen un mayor grado de ajuste de cuenta entre el sistema político y la ciudadanía. 
 
 
-Durabilidad del régimen política: 
-
-
-Población:
-
-Durabilidad del régimen: La variable independiente expresa el grado de estabilidad que tiene el régimen político por medio de la cantidad de años en la cual este se ha mantenido en el poder.
-Base de datos: Polity V 2020 (“p5v2018”)
 
 
 
