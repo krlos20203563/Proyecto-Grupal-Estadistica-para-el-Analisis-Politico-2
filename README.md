@@ -35,7 +35,7 @@ Base de datos: V-dem (caldemo.csv)
 Percepción de la corrupción: Es un indicador que nos permite estimar la forma en cómo la corrupción es concebida por la ciudadanía en cuanto a su extensión. Si bien no mide los actos corruptos como tal, si nos permite observar cual es la opinión pública de los grupos ciudadanos frente a una mayor percepción del fenómeno de la corrupción. Su elaboración se encuentra restringida en su concepción entorno al uso de la función pública para satisfacer intereses privados. La experiencia de los últimos años nos indica que una mayor percepción de la corrupción generaría un mayor número de protestas por año debido a los costos alarmantes que genera dicho fenómeno en el erario público.
 Base de datos: Amnistía Internacional (CPI2019.xlsx)
 
-
+Enlace del html:https://krlos20203563.github.io/Proyecto-Grupal-Estadistica-para-el-Analisis-Politico-2/
 
 
 
