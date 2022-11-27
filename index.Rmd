@@ -1,0 +1,713 @@
+---
+title: Número de protestas por año en cada país y las variables que influencian en
+  su ocurrencia
+author: "Carlos Crespín, Christian Silvera, Kevin Villarreal"
+date: "26-11-2022"
+output:
+  html_document:
+    df_print: paged
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
+subtitle: "Curso: POL304 - Estadística para el análisis político 2"
+---
+
+```{r,echo=FALSE, out.width="40%",fig.align="center"}
+knitr::include_graphics("logoPUCP.png") 
+```
+
+
+### 1. Introducción
+Uno de los temas más emergentes dentro de las ciencias sociales es el estudio de los movimientos de protestas que se está generalizando a nivel global y los factores que explican dichos movimientos de protesta. Dicho creciente interés se explica a partir de la crisis de legitimidad que actualmente sufren las democracias realmente existentes y un crecimiento de movimientos y actores políticos descritos como autoritarios que están teniendo una mayor aceptación dentro de la opinión pública y ocupan un mayor número de espacios dentro de los canales de discusión política brindados por los mecanismos formales de la democracia. El sentido común nos orienta priorizar una serie de causas tanto en el ámbito político como en el económico social como factores de explicación a número de protestas por año que se dan en cada país, cuestión que va a ser discutida en la presente investigación.
+
+Tomando como referencia las discusiones previas sobre el tema, partimos de la siguiente hipótesis: el número de protestas en cada país a nivel mundial se explican a partir de las condiciones políticas y económicas - sociales bajo las cuáles se encuentra cada país tomando en cuenta por el presente estudio. Dicha compleja interacción de factores explica los procesos sociales que llevan consigo un mayor o menor número de protestas según el país seleccionado. 
+
+Para analizar dicho tema, vamos a realizar un análisis de regresión de poisson que busca hallar la explicación del número de protestas (la variable dependiente) que se llevaron a cabo en 131 países durante el 2019 a partir de una serie de factores de carácter político y económico - social. Las variables a utilizar dentro del primer campo son tanto la percepción de la corrupción según la encuesta de Amnistía Internacional y la calidad de la democracia según el índice del Polity V. Por otro lado, el presente trabajo analiza otra serie de variables que se entremezclan dentro del ámbito económico - social. Las cuáles son tanto el Producto Bruto Interno per cápita, el Índice de Desarrollo Humano, la tasa de desempleo, el índice Gini, la tasa de inflación al consumo, la tasa de pobreza monetaria y el salario mínimo en dólares.
+
+Realizando una indagación más profunda en este proyecto, también realizaremos un análisis factorial exploratorio para observar de qué manera se distribuyen las variables entre sí para ver si existen factores que puedan agrupar y resumir cada una de las variables independientes. Asimismo, se realizará una conglomeración de los casos de estudio para ver si es posible agruparlos dentro de sus respectivos subconjuntos y entender las similitudes que existen entre ellos. 
+
+
+```{r, include=FALSE}
+library(rio)
+library(knitr)
+library(modelsummary)
+library(dplyr)
+library(arm)
+library(polycor)
+library(stargazer)
+library(ggcorrplot)
+library(cluster)
+library(factoextra)
+library(GPArotation)
+library(matrixcalc)
+library(psych)
+library(equatiomatic)
+library(reshape)
+library(kableExtra)
+library(ggplot2)
+library(DT)
+library(cowplot)
+library(sf)
+library(lm.beta)
+library(ggthemes)
+library(ggThemeAssist)
+library(Rmisc)
+library(car)
+```
+
+Aperturamos nuestra nueva base de datos
+
+```{r, echo=FALSE}
+Data=import("https://raw.githubusercontent.com/krlos20203563/Proyecto-Grupal-Estadistica-para-el-Analisis-Politico-2/c3b5d8b60d52e1f746ccbd4222231c2842f5decf/datafinal.csv")
+mapa=sf::read_sf("world.shp")
+Data=filter(Data, !is.na(Porcentpobreza2019))#esto se código se insertó debido a que hubo un error en la limpieza.
+```
+
+```{r, echo=FALSE}
+head(Data,15)%>%kbl()%>%kable_styling()
+```
+### 2. Gráficos
+
+
+
+Medidas de tendencia central de la población desempleada por país
+```{r,echo=FALSE}
+infounemp=summary(Data$PobUnemp2019)
+infounemp
+```
+```{r, echo=FALSE}
+barunemp=Data[,c(1,2)]
+barunemp=filter(barunemp,PobUnemp2019>15)
+g3=ggplot(barunemp, aes(x=reorder(country,PobUnemp2019), y=PobUnemp2019)) + 
+  geom_bar(stat = "identity") +
+  coord_flip()+
+  
+  labs(title = "Países con mayor tasa de desempleo a nivel mundial",
+       subtitle = " ",
+       x = " ",
+       y = " ") 
+g3+theme_economist()
+```
+
+
+
+Medidas de tendencia central del salario mensual promedio por país
+```{r,echo=FALSE}
+infosal=summary(Data$mensualsalary2019)
+infosal
+```
+```{r,echo=FALSE}
+barsal=Data[,c(1,3)]
+barsal=filter(barsal,mensualsalary2019<2.618e+08)
+g3=ggplot(barsal, aes(x=reorder(country,mensualsalary2019), y=mensualsalary2019)) + 
+  geom_bar(stat = "identity") +
+  coord_flip()+
+  
+  labs(title = "Países con un sueldo menor al primer cuartil mundial",
+       subtitle = " ",
+       x = " ",
+       y = " ") 
+g3+theme_economist()
+```
+
+
+Medidas de tendencia central del porcentaje de población en condición de pobreza por país
+```{r,echo=FALSE}
+infopover=summary(Data$Porcentpobreza2019)
+infopover
+```
+```{r,echo=FALSE}
+barpov=Data[,c(1,4)]
+barpov=filter(barpov,Porcentpobreza2019>30)
+g3=ggplot(barpov, aes(x=reorder(country,Porcentpobreza2019), y=Porcentpobreza2019)) + 
+  geom_bar(stat = "identity") +
+  coord_flip()+
+  
+  labs(title = "Países con mayor tasa de pobreza a nivel mundial",
+       subtitle = " ",
+       x = " ",
+       y = " ") 
+g3+theme_economist()
+```
+```
+
+
+Medidas de tendencia central del PBI per cápita por país
+```{r, echo= FALSE}
+infopbi=summary(Data$PBIpercapita2019)
+infopbi
+```
+
+Medidas de tendencia centarl de la tasa de inflación por país en el 2019
+```{r,echo=FALSE}
+infoinfl=summary(Data$Infla2019)
+infoinfl
+```
+
+Medidas de tendencia central del Índice de Desarrollo Humano por país
+```{r,echo=FALSE}
+infoidh=summary(Data$hdi_2019)
+infoidh
+```
+
+Medidas de tendencia central del Índice de GINI
+```{r,echo=FALSE}
+infoGINI=summary(Data$GINI2019)
+infoGINI
+```
+
+Medidas de tendencia central del Índice de Percepción de Corrupción
+```{r, echo=FALSE}
+infocpi=summary(Data$CPI2019)
+infocpi
+```
+```{r,echo=FALSE}
+barcpi=Data[,c(1,9)]
+barcpi=filter(barcpi,CPI2019<20)
+g3=ggplot(barcpi, aes(x=reorder(country,CPI2019), y=CPI2019)) + 
+  geom_bar(stat = "identity") +
+  coord_flip()+
+  
+  labs(title = "Países con alto índice de percepción de la corrupción en el 2019",
+       subtitle = " ",
+       x = " ",
+       y = " ") 
+g3+theme_economist()
+```
+```
+
+
+
+
+
+Medidas de tendencia central de la calidad democrática de cada país
+```{r,echo=FALSE}
+infodemo=summary(Data$caldemo2019)
+infodemo
+```
+Gráfico de barras con países cuya calidad democrática es inferior al 0.2
+
+```{r,echo=FALSE}
+demobar=Data[,c(1,10)]
+demobar=filter(demobar,caldemo2019<0.2)
+g2=ggplot(demobar, aes(x=reorder(country,caldemo2019), y=caldemo2019)) + 
+  geom_bar(stat = "identity") +
+  coord_flip()+
+  
+  labs(title = "Países con mayor calidad democrática en el 2019",
+       subtitle = " ",
+       x = " ",
+       y = " ") 
+g2+theme_economist()
+```
+
+
+
+
+Medidas de tendencia central del número de protestas por año
+```{r,echo=FALSE}
+infoprotest=summary(Data$protestnumber)
+infoprotest
+```
+
+
+Gráfico de barras con los países con el mayor número de protestas por año
+```{r,echo=FALSE}
+barr=Data[,c(1,11)]
+barr=filter(barr, protestnumber>10)
+g1=ggplot(barr, aes(x=reorder(country,protestnumber), y=protestnumber)) + 
+  geom_bar(stat = "identity") +
+  coord_flip()+
+  
+  labs(title = "Países con mayor número de protestas en el 2019",
+       subtitle = " ",
+       x = " ",
+       y = " ") 
+g1+theme_economist()
+```
+
+### 3. Primer modelo de regresión de Poisson**
+
+Realizaremos nuestro primer modelo de Poisson, en la cual el número de protestas será nuestra variable dependiente, mientras que el salario mensual, el PBI per cápita y la calidad de la democracia serán nuestras variables independientes.
+
+```{r,echo=FALSE}
+h1=formula(protestnumber~mensualsalary2019 + PBIpercapita2019 + caldemo2019)
+    
+rp1=glm(h1, data = Data,
+        family = poisson(link = "log"))
+model1=list('OLS asegurados (I)'=rp1)
+modelsummary(model1, title = "Resumen de Regresion Lineal salario-PBI-Calidad democracia",
+             stars = TRUE,
+             output = "kableExtra")
+
+```
+Tal como se puede apreciar en la tabla, observamos que nuestras tres variables poseen un p.value de 0.001, con lo cual podemos rechazar la hipótesis nula y confirmamos su efecto estadístico en el número de protestas por año. Se puede observar que un mayor salario mensual y un PBI per cápita más grande influye positivamente en el número de protestas, mientras que el efecto de de la calidad de la democracia es inverso. Para tener un mayor conocimiento sobre el efecto de las variables explicativas, podemos exponenciar los coeficientes del modelo:
+
+```{r,echo=FALSE}
+modelsPois=list('POISSON (I)'=rp1)
+
+f <- function(x) format(x, digits = 4, scientific = FALSE)
+modelsummary(modelsPois,
+             fmt=f,
+             exponentiate = T, 
+             statistic = 'conf.int',
+             title = "EXP() de la Regresión Poisson para Interpretación",
+             stars = TRUE,
+             output = "kableExtra")
+```
+Una vez exponenciados los coeficientes, es más sencillo entender el efecto de cada variable sobre el número de protestas por año. En la tabla se puede observar que tanto el salario mensual en dólares y el PBI per cápita solo incluye al 1 en su intérvalo de confianza, con lo cual podemos confirmar que el efecto de ambas variables en nuestra variable dependiente es de un 0%. No obstante, podemos observar que por cada unidad que aumente la calidad de la democracia, el número de protestas por año se multiplica en un 0.1912 veces. 
+
+Uno de los supuestos del modelo de Poisson es que la media y la varianza sean iguales. Para revisar dicho supuesto, es necesario realizar una prueba de equisdispersión.
+
+```{r,echo=FALSE}
+overdispersion=AER::dispersiontest(rp1,alternative='greater')$ p.value<0.05
+underdispersion=AER::dispersiontest(rp1,alternative='less')$ p.value<0.05
+
+# tabla
+
+testResult=as.data.frame(rbind(overdispersion,underdispersion))
+names(testResult)='Es probable?'
+testResult%>%kable(caption = "Test de Equidispersión")%>%kableExtra::kable_styling()
+
+```
+
+Tal como se puede observar en la tabla, se puede constatar que en el modelo existe  la sobredispersión. Para subsanar dicho problema, recurrimos al modelo de Quassipoisson.
+
+```{r,echo=FALSE}
+rqp1=glm(h1, data = Data,
+        family = quasipoisson(link = "log"))
+model1=list('Poisson (I)'=rp1)
+modelsummary(model1, title = "Resumen de Regresion Lineal salario-PBI-Calidad democracia",
+             stars = TRUE,
+             output = "kableExtra")
+```
+
+Ahora vamos a exponenciar los coeficientes del modelo de quiasipoisson para conocer con mayor precisión el grado de variabilidad de las variables explicativa sobre el número de protestas, la cual no difiere de lo expuesto en la tabla del modelo de regresión de Poisson, solo que los errores típicos ya no afecta el grado de significancia de los predictores.
+
+```{r,echo=FALSE}
+modelsQPexp=list('QuasiPoisson (I)'=rqp1)
+
+f <- function(x) format(x, digits = 4, scientific = FALSE)
+modelsummary (modelsQPexp,fmt=f,
+             exponentiate = T, 
+             statistic = 'conf.int',
+             title = "EXP() de la Regresión Quasi Poisson (II) para Interpretación",
+             stars = TRUE,
+             output = "kableExtra")
+```
+
+Básicamente, no salta el mismo resultado que cuando exponenciamos el primer modelo de Poisson, solamente el error de la sobredispersión ya no se encuentra presente, tal como se puede evidenciar en la revisión de los errores típicos
+
+```{r,echo=FALSE}
+cbind(sePoi=se.coef(rp1),seQuasiPoi=se.coef(rqp1))
+```
+
+
+### 4. Segundo modelo de Poisson**
+
+Nuestro segundo modelo de Poisson busca explicar el número de protestas por año a partir de la tasa de inflación por consumo, IDH y percepción de la corrupción.
+
+```{r,echo=FALSE}
+h2=formula(protestnumber~Infla2019 + hdi_2019 + CPI2019)
+    
+rp2=glm(h2, data = Data,
+        family = poisson(link = "log"))
+
+model2=list('OLS asegurados (2)'=rp2)
+modelsummary(model2, title = "Resumen de Regresion Lineal Inflacion-IDH-corrupcion",
+             stars = TRUE,
+             output = "kableExtra")
+```
+A partir de los valores de la tabla, podemos observar que las tres variables independientes son estadísticamente significativos. Mientras que la percepción de la corrupción y el IDH poseen un p.value menor a 0.001, el p.value de la tasa de inflación es menor a 0.05. Asimismo, podemos afirmar que a mayor inflación e IDH, existe un mayor número de protestas por año. Por otro lado, la percepción de la corrupción se encuentra relacionada de forma inversa con la variable dependiente.
+
+Para tener un mayor conocimiento sobre el efecto de las variables explicativas, podemos exponenciar los coeficientes del modelo:
+
+```{r,echo=FALSE}
+modelsPois2=list('POISSON (II)'=rp2)
+
+f <- function(x) format(x, digits = 4, scientific = FALSE)
+modelsummary(modelsPois2,
+             fmt=f,
+             exponentiate = T, 
+             statistic = 'conf.int',
+             title = "EXP() de la Regresión Poisson para Interpretación",
+             stars = TRUE,
+             output = "kableExtra")
+```
+En la tabla se puede que observar que por cada unidad que aumente la inflación por consumo, el número de protestas se multiplica por 1.0019. Por otro lado, por cada unidad en la cual se aumente el IDH de cada país, el número de protestas por año se multiplica por 6.9320. Finalmente, por cada unidad en que se aumente la percepción de la corrupción, el número de protestas por año se multiplica por 0.9835.
+
+Realizamos la prueba de la equidispersión:
+
+```{r,echo=FALSE}
+overdispersion=AER::dispersiontest(rp2,alternative='greater')$ p.value<0.05
+underdispersion=AER::dispersiontest(rp2,alternative='less')$ p.value<0.05
+
+# tabla
+testResult=as.data.frame(rbind(overdispersion,underdispersion))
+names(testResult)='Es probable?'
+testResult%>%kable(caption = "Test de Equidispersión")%>%kableExtra::kable_styling()
+```
+Confirmamos que existe sobredispersión en el segundo modelo, por lo que tenemos que utilizar la Quasipoisson para cumplir con los requisitos correspondientes:
+
+```{r,include=FALSE}
+rqp2=glm(h2, data = Data,
+        family = quasipoisson(link = "log"))
+model2=list('Poisson (2)'=rp2)
+modelsummary(model2, title = "Resumen de Regresion Lineal Inflacion-IDH-corrupcion",
+             stars = TRUE,
+             output = "kableExtra")
+```
+
+Una vez subsanados la sobredispersión, podemos exponenciar los coeficientes para que sea más explícita la manera en cómo la variabilidad del número de protestas es explicada por las variables independientes.
+
+```{r,echo=FALSE}
+modelsQPexp2=list('QuasiPoisson (II)'=rqp2)
+
+f <- function(x) format(x, digits = 4, scientific = FALSE)
+modelsummary (modelsQPexp2,fmt=f,
+             exponentiate = T, 
+             statistic = 'conf.int',
+             title = "EXP() de la Regresión Quasi Poisson (II) para Interpretación",
+             stars = TRUE,
+             output = "kableExtra")
+```
+Trae los mismo resultados que el modelo de regresión, pero cambian los errores típicos:
+
+```{r,echo=FALSE}
+cbind(sePoi=se.coef(rp2),seQuasiPoi=se.coef(rqp2))
+```
+
+### 5. Tercer modelo de Poisson**
+
+El tercer modelo de Poisson tiene como variables explicativas la tasa de desempleo, el porcentaje de pobreza monetaria y el coeficiente de desigualdad GINI
+
+```{r,echo=FALSE}
+h3=formula(protestnumber~PobUnemp2019 + Porcentpobreza2019 + GINI2019)
+    
+rp3=glm(h3, data = Data,
+        family = poisson(link = "log"))
+model3=list('OLS asegurados (3)'=rp3)
+modelsummary(model3, title = "Resumen de Regresion Lineal Desempleo-Pobreza-GINI",
+             stars = TRUE,
+             output = "kableExtra")
+```
+Tal como lo explica la tabla, la variable tasa de desempleo no posee efecto alguna en el número de protestas por año. Por otro lado, el efecto de la tasa de pobreza monetaria es negativa y estadísticamente significativa debido a su p.value menor a 0.05, mientras que el GINI igualmente es negativa y estadísticamente significativa en su relación con el número de protestas por año por su p.value menor a 0.01. 
+
+Para tener un mayor conocimiento sobre el efecto de las variables explicativas, podemos exponenciar los coeficientes del modelo:
+
+```{r, echo=FALSE}
+modelsPois3=list('POISSON (III)'=rp3)
+
+f <- function(x) format(x, digits = 4, scientific = FALSE)
+modelsummary(modelsPois3,
+             fmt=f,
+             exponentiate = T, 
+             statistic = 'conf.int',
+             title = "EXP() de la Regresión Poisson para Interpretación",
+             stars = TRUE,
+             output = "kableExtra")
+```
+Tal como observamos en la tabla, no es necesario analizar el resultado en la tabla de desempleo ya que no explica la variabilidad del número de protestas por año. Por otro lado, en lo que respecta al porcentaje de pobreza podemos observar que cada vez que aumente una unidad de la misma, el número de protestas se multiplica por un 0.9940, mientras que cada vez que se aumente una unidad de la variable GINI, el número de protestas por año se multiplica por 0.9846.
+
+Vamos a realizar la prueba de equidispersión.
+
+```{r, echo=FALSE}
+overdispersion=AER::dispersiontest(rp3,alternative='greater')$ p.value<0.05
+underdispersion=AER::dispersiontest(rp3,alternative='less')$ p.value<0.05
+
+# tabla
+testResult=as.data.frame(rbind(overdispersion,underdispersion))
+names(testResult)='Es probable?'
+testResult%>%kable(caption = "Test de Equidispersión")%>%kableExtra::kable_styling()
+```
+La tabla nos confirma que el tercer modelo tiene la presencia de la sobredispersión, por lo que es necesario realizar la prueba de la Quasipoisson
+
+```{r,echo=FALSE}
+h3=formula(protestnumber~PobUnemp2019 + Porcentpobreza2019 + GINI2019)
+    
+rqp3=glm(h3, data = Data,
+        family = quasipoisson(link = "log"))
+model3=list('OLS asegurados (3)'=rp3)
+modelsummary(model3, title = "Resumen de Regresion Lineal Desempleo-IPobreza-GINI",
+             stars = TRUE,
+             output = "kableExtra")
+```
+Comparamos ambos modelos
+
+```{r,echo=FALSE}
+modelsPQP3=list('POISSON (III)'=rp3,'QUASIPOISSON (III)'=rqp3)
+
+modelsummary(modelsPQP3, title = "Regresiones Poisson y QuasiPoisson",
+             stars = TRUE,
+             output = "kableExtra")
+```
+
+Podemos exponenciar los coeficientes para que sea más clara la forma en cómo la variabilidad del número de protestas es explicada por las variables independientes.
+
+```{r,echo=FALSE}
+modelsQPexp3=list('QuasiPoisson (III)'=rqp3)
+
+f <- function(x) format(x, digits = 4, scientific = FALSE)
+modelsummary (modelsQPexp3,fmt=f,
+             exponentiate = T, 
+             statistic = 'conf.int',
+             title = "EXP() de la Regresión Quasi Poisson (II) para Interpretación",
+             stars = TRUE,
+             output = "kableExtra")
+```
+
+Como en los modelos previos, la diferencia entre uno y otro yace en los errores típicos.
+
+```{r,echo=FALSE}
+cbind(sePoi=se.coef(rp1),seQuasiPoi=se.coef(rqp1))
+```
+
+
+
+### 6. Modelo de regresión con todas las variables**
+
+```{r,echo=TRUE}
+h4=formula(protestnumber~PobUnemp2019 + Porcentpobreza2019 + GINI2019 + mensualsalary2019 + PBIpercapita2019 + caldemo2019 + Infla2019 + hdi_2019 + CPI2019)
+    
+rp4=glm(h4, data = Data,
+        family = poisson(link = "log"))
+model4=list('OLS asegurados (4)'=rp4)
+modelsummary(model4, title = "Resumen de Regresion Lineal Desempleo-IPobreza-GINI",
+             stars = TRUE,
+             output = "kableExtra")
+```
+Tal como se puede apreciar en la tabla, las variables sobre la tasa de desempleo, porcentaje de pobreza, PBI per cápita, inflación y percepción de la corrupción no son estadísticamente significativa en el modelo de Poisson. Por otro lado, el IDH, la calidad de la democracia, el salario mensual y el índice GINI son estadísticamente significativos y relacionados de forma positiva con excepción de esta última variable y la calidad de la democracia.
+
+Para poder observar con mayor detalle la forma en cómo afecta la variabilidad del número de protestas, tenemos que exponenciar los coeficientes.
+
+```{r, echo=FALSE}
+modelsPois4=list('POISSON (IV)'=rp4)
+
+f <- function(x) format(x, digits = 4, scientific = FALSE)
+modelsummary(modelsPois4,
+             fmt=f,
+             exponentiate = T, 
+             statistic = 'conf.int',
+             title = "EXP() de la Regresión Poisson para Interpretación",
+             stars = TRUE,
+             output = "kableExtra")
+```
+Tomando en cuenta solamente las variables estadísticamente significativas, podemos afirmar que por cada unidad que se aumenta del coeficiente GINI, el número de protestas por año se multiplica  0.9853. De la misma forma, por cada unidad que se aumente en calidad de la democracia, el número de protestas se multiplica por 0.1865. Por otro lado, por cada unidad que se aumente del índice IDH, el número de protestas se multiplica por 5.9497, es decir, aumenta en un 494,97%. Finalmente, en el intérvalo del salario mensual en dólares se puede observar el 1, con lo cual no permitiría establecer una relación de causalidad entre dicha variable y el número de protestas por año 
+
+Para cumplir con los requisitos del modelo, requerimos una prueba de equisdispersión. 
+
+```{r, echo=FALSE}
+overdispersion=AER::dispersiontest(rp4,alternative='greater')$ p.value<0.05
+underdispersion=AER::dispersiontest(rp4,alternative='less')$ p.value<0.05
+# tabla
+testResult=as.data.frame(rbind(overdispersion,underdispersion))
+names(testResult)='Es probable?'
+testResult%>%kable(caption = "Test de Equidispersión")%>%kableExtra::kable_styling()
+```
+
+Para subsanar la sobredispersión, realizamos un modelo de quassipoisson:
+
+
+```{r, echo=FALSE}
+h4=formula(protestnumber~PobUnemp2019 + Porcentpobreza2019 + GINI2019 + mensualsalary2019 + PBIpercapita2019 + caldemo2019 + Infla2019 + hdi_2019 + CPI2019)
+    
+rqp4=glm(h4, data = Data,
+        family = quasipoisson(link = "log"))
+model4=list('Poisson (4)'=rp4)
+modelsummary(model4, title = "Resumen de Regresion Lineal",
+             stars = TRUE,
+             output = "kableExtra")
+```
+Realizamos una comparación entre ambos modelos
+
+```{r, echo=FALSE}
+modelsPQP4=list('POISSON (IV)'=rp4,'QUASIPOISSON (IV)'=rqp4)
+
+modelsummary(modelsPQP3, title = "Regresiones Poisson y QuasiPoisson",
+             stars = TRUE,
+             output = "kableExtra")
+```
+
+Exponenciamos los coeficientes del modelo una vez que hayamos tratado la sobredispersión previamente detectada
+
+```{r, echo=FALSE}
+modelsQPexp4=list('QuasiPoisson (IV)'=rqp4)
+
+f <- function(x) format(x, digits = 4, scientific = FALSE)
+modelsummary (modelsQPexp4,fmt=f,
+             exponentiate = T, 
+             statistic = 'conf.int',
+             title = "EXP() de la Regresión Quasi Poisson (II) para Interpretación",
+             stars = TRUE,
+             output = "kableExtra")
+```
+
+Al igual que en los otros modelos, la diferencia entre el modelo y la quiasipoisson yace en la cantidad de errores atípicos.
+
+```{r, echo=FALSE}
+cbind(sePoi=se.coef(rp4),seQuasiPoi=se.coef(rqp4))
+```
+
+### 7. Comparación entre modelos###
+
+```{r, echo=FALSE}
+stargazer(rp1, rp2, rp3, rp4, type ="text")
+```
+Tomando el Log Likelihood, podemos observar que el mejor modelo entre los 4 es el último, en el cual se toma todas las variables de la base de datos. Entre los 3 primeros modelos, el mejor es el primero en donde se toma en cuenta el salario mensual en dólares, el PBI per cápita y la calidad de la democracia.
+
+
+
+### 8. Analisis factorial**
+
+Observamos la base de datos para poder generar una agrupación de las variables en factores que nos ayuden a reducir de la dimensionalidad de las posibles respuestas y tener valores que pueden explicar más detalladamente el número de protestas por año, pro lo que utilizaremos el analisis factorial. 
+```{r,echo=FALSE}
+str(Data)
+```
+Hay que convertir en numérico las variables número de protestas y percepción de la corrupción
+
+```{r,echo=FALSE}
+Data$protestnumber =as.numeric(Data$protestnumber)
+```
+
+```{r,echo=FALSE}
+Data$CPI2019 =as.numeric(Data$CPI2019)
+```
+
+Hay que subsetear la data en la cual señalamos la variable a la cual no queremos realizar dicha indagación, debido a que los indices ya son data de variables agrupadas, con lo que nos quedaremos solamente con 5 variables por factorizar.
+
+```{r,echo=FALSE}
+dontselect=c("country", "CPI2019", "hdi_2019", "GINI2019", "caldemo2019","protestnumber")
+select=setdiff(names(Data),dontselect) 
+theData=Data[,select]
+```
+
+Hacemos el cálculo de matriz de correlación:
+
+```{r,echo=FALSE}
+corMatrix=polycor::hetcor(theData)$correlations
+```
+
+Exploramos las correlaciones
+
+```{r,echo=FALSE}
+ggcorrplot(corMatrix)
+```
+Al analizar la matriz de correlaciones realizada a las 5 variables que no representan un índice, podemos observar que los bloques correlacionales generados no muestran por si una buena esperanza de realizar un buen análisis factorial.
+	
+Hay que observar si podemos factorizar los datos para agruparlos:
+
+```{r,echo=FALSE}
+psych::KMO(corMatrix)
+```
+Observando que pueden agruparse el siguiente paso sera verificar la matriz de correlación,para realizar esto podemos utilizar dos pruebas, las cuáles son la matriz identidad y la matriz singular.
+
+```{r,echo=FALSE}
+cortest.bartlett(corMatrix,n=nrow(theData))$p.value>0.05
+```
+```{r,echo=FALSE}
+is.singular.matrix(corMatrix)
+```
+A traves de estas 2 pruebas podemos observar que a partir de la prueba tenemos evidencia de que la matriz de correlación posiblemente no sea la más idónea, sin embargo se realizara de todos modos para ver una posible agrupación.
+
+Por lo que tenemos que determinar en cuantos factores o variables latentes podríamos redimensionar la data:
+
+```{r,echo=FALSE}
+fa.parallel(theData, fa = 'fa',correct = T,plot = F)
+```
+Se sugieren dos, por lo que tenemos que redimensionar a un número menor de factores.
+
+Resultado inicial:
+
+```{r,echo=FALSE}
+resfa <- fa(theData,
+            nfactors = 2,
+            cor = 'mixed',
+            rotate = "varimax",
+            fm="minres")
+print(resfa$loadings)
+```
+A traves del primer resultado podemos ver que las variables no tiene una gran significacia par apoder ser agrupadas en los grupos de variables, al ser 2 factores debemos de redimensionar la data para observar un mejor resultado.
+
+Resultado mejorado:
+
+
+
+```{r,echo=FALSE}
+print(resfa$loadings,cutoff = 0.4)
+```
+
+A traves de este resultado mejorado observamos que las variables efectivamente no tienen una gran incidencia para poder formar parte de los grupos de factores.
+
+Podemos realizar una visualización de una estructura simple de nuestras variables a utilizar para confirmar esto:  
+
+```{r,echo=FALSE}
+fa.diagram(resfa,main = "Resultados del EFA")
+```
+
+Al observar los resultados obtenidos, vemos que la cantidad de variables que aportaron más a los factores vienen siendo solamente 3, los cuales son la cantidad de población desempleada, el porcentaje de pobreza de cada país y el PBI per cápita, pero esta última teniendo un efecto significativo muy bajo al no ser mayor que 0.4.
+
+Por lo que se puede ver que para el desarrollo de nuestra investigación el análisis factorial no es el método más efectivo ya que las variables no pueden agruparse para reducir la dimensionalidad de las posibles interpretaciones, siendo que están representan diferentes elementos que pueden explicar la problemática de protestas por año.
+
+
+### 9. Análisis de Conglomerados
+
+Por último, se este proyecto intentará abordar un análisis de conglomerados para agrupar distintos casos con sus respectivos similares.No obstante, debido a errores en el uso de la estrategia de partición para decidir la cantidad óptima de clusters, se formulará directamente 3 de estos.
+
+```{r,echo=FALSE}
+dataClus=Data[,c(2, 4:10)]
+row.names(dataClus)=Data$country
+```
+
+```{r,echo=FALSE}
+g.dist = daisy(dataClus, metric="gower")
+```
+
+Aquí se puede apreciar la base de datos preparada para realizar el análisis de clusters. Esto incluye la matriz de distancias.
+```{r,echo=FALSE}
+set.seed(123)
+res.pam=pam(g.dist,3,cluster.only = F)
+dataClus$pam=res.pam$cluster
+head(dataClus,15)%>%kbl()%>%kable_styling()
+```
+
+
+```{r,echo=FALSE}
+fviz_silhouette(res.pam,print.summary = F)
+```
+En el gráfico se puede apreciar una mayor pertenencia del cluster 3, puesto que sus valores abarcan en mayor medida superan la línea delimitada por el average silhouette width de 0.34.
+Por otro lado, tanto el cluster 2 como el 1 presentan casos mal clusterizados.
+
+
+
+Estos son los países mal clusterizados. Son 9 países los que se encuentran mal clusterizados por esta estrategia de aglomeración por partición usando la función PAM.
+```{r,echo=FALSE}
+silPAM=data.frame(res.pam$silinfo$widths)
+silPAM$country=row.names(silPAM)
+poorPAM=silPAM[silPAM$sil_width<0,'country']%>%sort()
+poorPAM
+```
+
+Por último, se mostrará el promedio de cada cluster según la variable.
+```{r,echo=FALSE}
+aggregate(.~ pam, data=dataClus,mean)
+```
+En este caso, el cuadro muestra que en el primer cluster hay un promedio de aproximadamente 7% de población desempleada y alrededor de un 33% en condiciones de pobreza, seguido de el PBI per cápita más bajo de todos los clusters y la inflación alta.
+En oposición a ello, en el cluster 3 se puede apreciar que el promedio de población desempleada es menor entre los clusters. Asimismo, un porcentaje de la población en condiciones de pobreza no supera el 1%. Asimismo, cuentan con el PBI per cápita más alto, al igual que el IDH. Por último, con una tasa de inflación que no supera el 2%. Se podría afirmar que los países del cluster 3 cuentan con mejores condiciones de vida respecto de los otros.
+
+
+### 10. Conclusiones 
+
+A través del análisis realizado por las variables económicas-sociales y ver como estas inciden en el número de protestas, es de suma relevancia evaluar que a través de los resultados evaluados en las regresiones, es que en la última regresión realizada con todas las variables, es que se puede ver que las variables que influyen directamente en el número de protestas es el salario mensual, calidad de la democracia, la desigualdad en los ingresos bajo la escala GINI, el índice de desarrollo humano y variables como la inflación que explican las protestas pero en baja medida. Es por esto por lo que se tiene que poner en relevancia la importancia de estas variables para futuros análisis en los que se tome en cuenta factores como la calidad de la democracia o el IDH debido a que a través de las regresiones realizadas se vio una alta significancia, por lo que hacer más estudios sobre la relación que tienen estos factores frente al número de protestas es de gran importancia.
+
+Por otro lado, al realizar el análisis factorial se puede ver que al intentar generar factores para poder reducir la dimensionalidad de las variables y poder dar un análisis más certero de los resultados es que el generar una agrupación de las 5 variables que no representaban índices no se podían agrupar debido a que cada una explica diferentes dimensiones para explicar esta problemática y no pueden ser abordadas agrupándolas, siendo que 4 de las 9 variables ya representan índices que abordan la problemática cada uno explicando cierta parte de la problemática que genera todas las protestas.
+
+Por último, se pudo observar que, en el análisis de clusters, el tercero fue el que mejor aglomeradaba, a comparación del primero y el segundo. A su vez, este cluster agrupaba a los paises con mejores condiciones de vida.
+
+
+
+
+
+
+
+
+
